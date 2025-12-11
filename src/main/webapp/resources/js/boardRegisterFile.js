@@ -15,6 +15,8 @@ function fileValidation(fileName, fileSize){
         return 0;
     }else if(fileSize > maxSize){
         return 0;
+    }else if(fileSize <= 0){
+    	return 0;
     }else {
         return 1;
     }

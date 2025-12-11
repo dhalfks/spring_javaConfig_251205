@@ -28,4 +28,6 @@ public interface BoardDAO {
 
 	long getBno();
 
+	int fileQtyUpdate(@Param("bno") long bno, @Param("size") int size);
+
 }

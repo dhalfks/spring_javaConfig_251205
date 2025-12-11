@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.koreait.www.domain.BoardFileDTO;
 import com.koreait.www.domain.BoardVO;
@@ -62,7 +63,7 @@ public class BoardController {
 		
 		//int isOk = bsv.insert(board);
 		log.info(">>> insert isOk >> {}", (isOk>0)? "ok" : "fail");
-		return "redirect:/";
+		return "redirect:/board/list";
 	}
 	
 	@GetMapping("/list")
@@ -91,7 +92,7 @@ public class BoardController {
 	}
 	
 	@PostMapping("/update")
-	public String update(BoardVO board, 
+	public String update(BoardVO board, RedirectAttributes re,
 			@RequestParam(value = "files", required = false) MultipartFile[] files) {
 		List<FileVO> flist = null;
 		
@@ -101,7 +102,12 @@ public class BoardController {
 		}
 		
 		int isOk = bsv.update(new BoardFileDTO(board, flist));
-		return "redirect:/board/list";
+		
+		// RedirectAttributes
+		re.addAttribute("bno", board.getBno());
+		// m.addAttribute("bno", board.getBno());
+		return "redirect:/board/detail";
+		//return "redirect:/board/detail?bno="+board.getBno();
 	}
 	
 	@GetMapping("/delete")
@@ -114,9 +120,11 @@ public class BoardController {
 	@DeleteMapping("/file/{uuid}")
 	public String fileDelete(@PathVariable("uuid") String uuid) {
 		//폴더에 있는 파일도 삭제 
-		FileRemoveHandler fr = new FileRemoveHandler();
-		FileVO fvo = bsv.getFile(uuid);
-		fr.removeFile(fvo);
+//		FileRemoveHandler fr = new FileRemoveHandler();
+//		FileVO fvo = bsv.getFile(uuid);
+//		fr.removeFile(fvo);
+		
+		// 스케줄러 사용하여 파일 삭제
 		
 		// uuid 보내서 DB의 파일 삭제
 		int isOk = bsv.removeFile(uuid);

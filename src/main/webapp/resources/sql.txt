@@ -57,11 +57,34 @@ reg_date datetime default now(),
 primary key(uuid));
 
 
+--25-12-11
+-- board 테이블에 파일의 개수를 집계하는 칼럼을 추가
+alter table board add file_qty int default 0;
+
+-- 현재 들어가있는 파일의 개수 집계
+update board b set file_qty = (
+	select count(uuid) from file f
+	where b.bno = f.bno
+);
 
 
+-- user table 생성
+create table user(
+email varchar(256),
+pwd varchar(256) not null,
+nick_name varchar(200),
+reg_date datetime default now(),
+last_login datetime default now(),
+primary key(email));
 
-
-
+-- 권한 테이블 생성 
+-- ADMIN + USER + MANAGER
+-- ROLE_ADMIN / ROLE_USER / ROLE_MANAGER
+create table auth(
+id bigint auto_increment,
+email varchar(256) not null,
+auth varchar(256) not null,
+primary key(id));
 
 
 
