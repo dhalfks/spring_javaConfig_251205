@@ -1,6 +1,11 @@
 console.log("boardDetailComment.js in");
 console.log(bnoValue);
+console.log(loginNick)
 
+const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+if(loginNick !== ''){
 document.getElementById('cmtAddBtn').addEventListener('click',()=>{
     const cmtText = document.getElementById('cmtText');
     const cmtWriter = document.getElementById('cmtWriter');
@@ -28,6 +33,7 @@ document.getElementById('cmtAddBtn').addEventListener('click',()=>{
         spreadCommentList(cmtData.bno);
     });
 });
+}
 
 // 댓글 뿌리기
 function spreadCommentList(bno, page=1){
@@ -48,8 +54,11 @@ function spreadCommentList(bno, page=1){
                 li += `${cvo.content}`;
                 li += `</div>`;
                 li += `<span class="badge text-bg-primary">${cvo.regDate}</span>`;
-                li += `<button type="button" class="btn btn-outline-warning btn-sm mod" data-bs-toggle="modal" data-bs-target="#cmtModal">%</button>`;
-                li += `<button type="button" class="btn btn-outline-danger btn-sm del">x</button>`;
+                if(loginNick === cvo.writer){
+                    li += `<button type="button" class="btn btn-outline-warning btn-sm mod" data-bs-toggle="modal" data-bs-target="#cmtModal">%</button>`;
+                    li += `<button type="button" class="btn btn-outline-danger btn-sm del">x</button>`;
+                }
+                
                 li += `</li>`;
             }
             ul.innerHTML += li;
@@ -78,9 +87,11 @@ function spreadCommentList(bno, page=1){
 }
 
 document.addEventListener('click',(e)=>{
+    console.log("logout");
     if(e.target.id == 'moreBtn'){
         // 더보기 버튼
         let page = parseInt(e.target.dataset.page);
+        console.log("logout", page);
         spreadCommentList(bnoValue, page);
     }
 
@@ -147,7 +158,14 @@ document.addEventListener('click',(e)=>{
 //delete
 async function deleteCommentToServer(cno, bno) {
     try {
-        const resp = await fetch(`/comment/delete/${cno}/${bno}`, {method:'delete'});
+        const url = `/comment/delete/${cno}/${bno}`;
+        const config={
+            method:'delete',
+            headers:{
+                [csrfHeader] : csrfToken
+            }
+        }
+        const resp = await fetch(url, config);
         const result = await resp.text();
         return result;
     } catch (error) {
@@ -162,7 +180,8 @@ async function updateCommentToServer(cmtData) {
         const config = {
             method: 'put',
             headers:{
-                'Content-Type':'application/json; charset=utf-8'
+                'Content-Type':'application/json; charset=utf-8',
+                [csrfHeader] : csrfToken
             },
             body:JSON.stringify(cmtData)
         }
@@ -194,7 +213,8 @@ async function postCommentToServer(cmtData) {
         const config={
             method : 'post',
             headers: {
-                'Content-Type':'application/json; charset=utf-8'
+                'Content-Type':'application/json; charset=utf-8',
+                [csrfHeader] : csrfToken
             },
             body: JSON.stringify(cmtData)
         }

@@ -5,6 +5,10 @@ console.log("boardModify.js in");
 // 2. 비동기로 컨트롤러로 전송 => DB에서 삭제
 // 3. 해당 li 라인을 삭제  remove()
 
+const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+
 document.addEventListener('click',(e)=>{
     if(e.target.classList.contains("file-x")){
         let uuid = e.target.dataset.uuid;
@@ -22,7 +26,10 @@ async function removeFileToServer(uuid) {
     try {
         const url = "/board/file/"+uuid;
         const config = {
-            method:"delete"
+            method:"delete",
+            headers:{
+                [csrfHeader] : csrfToken
+            }
         }
         const resp = await fetch(url, config);
         const result = await resp.text();
